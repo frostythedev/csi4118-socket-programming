@@ -131,12 +131,15 @@ public class myClient {
 								case "type4":
 									commandId = 4;
 									out.writeUTF(commandId + "," + studentId);
-									print(("SERVER> " + servReader.readLine()));
 
-									if(servReader.readLine().equals("BYE")){
+									String response = servReader.readLine();
+									print(("SERVER> " + response));
+
+									if(response.equals("BYE")){
 										input.close();
 										out.close();
 										socket.close();
+										return;
 									}
 									break;
 								default:
@@ -172,7 +175,7 @@ public class myClient {
 
 		try {
 			//new myServer(Integer.parseInt(args[0]));
-			
+
 			new myClient(args[0], Integer.parseInt(args[1]));
 		} catch (NumberFormatException e) {
 			print(" Invalid port number entered. Please try again");
