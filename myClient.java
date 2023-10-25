@@ -20,16 +20,15 @@ public class myClient {
 		try {
 			socket = new Socket(address, port);
 
-			if (!socket.isConnected()) {
-				print("Could not establish connection with server, please try again later.");
-				System.exit(0);
-			}
-
 			// Gets input / serverResponses from the socket
 			serverInputStream = new DataInputStream(socket.getInputStream());
 			servReader = new BufferedReader(new InputStreamReader(serverInputStream));
 
-			System.out.println("Connected");
+			String serverConnectResponse = servReader.readLine();
+			if(serverConnectResponse.startsWith("Refused")){
+				print("Connection has been refused for: " + serverConnectResponse);
+				return;
+			}
 
 			// takes input from terminal
 			input = new Scanner(System.in);
@@ -56,7 +55,10 @@ public class myClient {
 
 			line = (input.hasNext() ? input.nextLine() : "");
 
+			
+
 			if (line.startsWith("csi4118")) {
+
 				params = line.split(" ");
 
 				if (params.length < 3) {

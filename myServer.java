@@ -45,71 +45,80 @@ public class myServer {
 				socket = server.accept();
 				String clientAddress = socket.getInetAddress().getHostAddress();
 
-				localPrint("Client@" + clientAddress + " has been accepted.");
+				if (!clientAddress.equals("127.0.0.1")) {
 
-				// takes input from the client socket
-				in = new DataInputStream(new BufferedInputStream(socket.getInputStream()));
+					localPrint("Client@" + clientAddress + " has been accepted.");
+					respondAsServer("Accepted! Connection established!");
 
-				String line = "";
-				String[] params;
-				int cipherOffset = 3;
-				int studentId;
-				String storedMessage = "";
+					// takes input from the client socket
+					in = new DataInputStream(new BufferedInputStream(socket.getInputStream()));
 
-				while (true) {
-					line = in.readUTF();
+					String line = "";
+					String[] params;
+					int cipherOffset = 3;
+					int studentId;
+					String storedMessage = "";
 
-					localPrint("Received: " + line);
-					params = line.split(",");
+					while (true) {
+						line = in.readUTF();
 
-					studentId = Integer.parseInt(params[1]);
+						localPrint("Received: " + line);
+						params = line.split(",");
 
-					switch (params[0]) {
-						case "0":
-							cipherOffset = Integer.parseInt(params[2]);
-							respondAsServer("OK");
-							addLog("OPP_CODE: %d | IP: %s | STUDENT_ID: %d".formatted(0, clientAddress, studentId));
+						studentId = Integer.parseInt(params[1]);
 
-							break;
-						case "1":
-							respondAsServer("You are connected to the server as: " + clientAddress);
-							addLog("OPP_CODE: %d | IP: %s | STUDENT_ID: %d".formatted(1, clientAddress, studentId));
+						switch (params[0]) {
+							case "0":
+								cipherOffset = Integer.parseInt(params[2]);
+								respondAsServer("OK");
+								addLog("OPP_CODE: %d | IP: %s | STUDENT_ID: %d".formatted(0, clientAddress, studentId));
 
-							break;
-						case "2":
-							respondAsServer("1 2 3 4 5 6 7 8 9 10");
-							addLog("OPP_CODE: %d | IP: %s | STUDENT_ID: %d".formatted(2, clientAddress, studentId));
+								break;
+							case "1":
+								respondAsServer("You are connected to the server as: " + clientAddress);
+								addLog("OPP_CODE: %d | IP: %s | STUDENT_ID: %d".formatted(1, clientAddress, studentId));
 
-							break;
-						case "3":
-							String encodedMessage = params[2];
-							if (storedMessage == "") {
-								storedMessage = decodeMessage(encodedMessage, cipherOffset);
-							}else{
-								storedMessage += " " + decodeMessage(encodedMessage, cipherOffset);
-							}
+								break;
+							case "2":
+								respondAsServer("1 2 3 4 5 6 7 8 9 10");
+								addLog("OPP_CODE: %d | IP: %s | STUDENT_ID: %d".formatted(2, clientAddress, studentId));
 
-							respondAsServer("GOT IT");
+								break;
+							case "3":
+								String encodedMessage = params[2];
+								if (storedMessage == "") {
+									storedMessage = decodeMessage(encodedMessage, cipherOffset);
+								} else {
+									storedMessage += " " + decodeMessage(encodedMessage, cipherOffset);
+								}
 
-							addLog("OPP_CODE: %d | IP: %s | STUDENT_ID: %d".formatted(3, clientAddress, studentId));
-							break;
-						case "4":
-							respondAsServer("BYE");
-							addLog("OPP_CODE: %d | IP: %s | STUDENT_ID: %d".formatted(4, clientAddress, studentId));
-							break;
-						default:
+								respondAsServer("GOT IT");
 
-							break;
+								addLog("OPP_CODE: %d | IP: %s | STUDENT_ID: %d".formatted(3, clientAddress, studentId));
+								break;
+							case "4":
+								respondAsServer("BYE");
+								addLog("OPP_CODE: %d | IP: %s | STUDENT_ID: %d".formatted(4, clientAddress, studentId));
+								break;
+							default:
+
+								break;
+						}
 					}
+				}else{
+					
+					respondAsServer("Refused! Cannot connect to server for the same computer.");
+					socket.close();
 				}
+
 			} catch (IOException i) {
 				// Most likely the client disconnected from the server
 				if (i instanceof EOFException) {
 
-					//TODO: Save all storedMessages to logfiles for archive
+					// TODO: Save all storedMessages to logfiles for archive
 
 					File logFile = new File("logs/" + new Date().getTime() + ".txt");
-					if(!logFile.exists()){
+					if (!logFile.exists()) {
 						try {
 							logFile.createNewFile();
 						} catch (IOException e) {
@@ -124,16 +133,16 @@ public class myServer {
 							String s = it.next();
 							logWriter.write(s);
 							it.remove();
-						
-						} 
-					
+
+						}
+
 						logWriter.close();
 						localPrint("Successfully saved logs.");
 					} catch (IOException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
-					
+
 					System.out.println("A client has disconnected ending the stream.");
 				}
 			}
@@ -144,7 +153,7 @@ public class myServer {
 		String decoded = "";
 		for (int i = 0; i < message.length(); i++) {
 
-			int index = ALPHABET.indexOf(message.charAt(i))+1;
+			int index = ALPHABET.indexOf(message.charAt(i)) + 1;
 			int newIndex = index + cipherOffset;
 			if (newIndex > 26) {
 				newIndex -= 26;
@@ -163,13 +172,13 @@ public class myServer {
 		if (socket != null) {
 			try {
 
-				if(oStream == null){
+				if (oStream == null) {
 					oStream = socket.getOutputStream();
 				}
-				if(printWriter == null){
+				if (printWriter == null) {
 					printWriter = new PrintWriter(oStream, true);
 				}
-				
+
 			} catch (IOException e) {
 
 				e.printStackTrace();
