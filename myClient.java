@@ -157,24 +157,25 @@ public class myClient {
 			}
 		}
 
-		// keep reading until "Over" is input
-		// while (!line.equals("Over")) {
-		// try {
-		// line = input.nextLine();
-		// out.writeUTF(line);
-		// } catch (IOException i) {
-		// System.out.println(i);
-		// }
-		// }
-
-		// close the connection
 	}
 
-	public void print(String message) {
+	private static void print(String message) {
 		System.out.println(message);
 	}
 
 	public static void main(String args[]) {
-		myClient client = new myClient("127.0.0.1", 5000);
+
+		if (args.length < 2) {
+			print("Invalid arguments starting myServer. Usage myClient <ip> <port>");
+			System.exit(0);
+		}
+
+		try {
+			//new myServer(Integer.parseInt(args[0]));
+			
+			new myClient(args[0], Integer.parseInt(args[1]));
+		} catch (NumberFormatException e) {
+			print(" Invalid port number entered. Please try again");
+		}
 	}
 }
