@@ -28,6 +28,8 @@ public class myClient {
 			if(serverConnectResponse.startsWith("Refused")){
 				print("Connection has been refused for: " + serverConnectResponse);
 				return;
+			}else{
+				print("Connection established!");
 			}
 
 			// takes input from terminal
@@ -176,7 +178,7 @@ public class myClient {
 
 	public static void main(String args[]) {
 
-		if (args.length < 2) {
+		if (args.length < 1) {
 			print("Invalid arguments starting myServer. Usage myClient <ip> <port>");
 			System.exit(0);
 		}

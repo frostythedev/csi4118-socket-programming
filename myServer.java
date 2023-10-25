@@ -19,13 +19,15 @@ public class myServer {
 	private PrintWriter printWriter;
 
 	private List<String> logs;
+	private boolean refuseLocal;
 
 	private final List<Character> ALPHABET = Arrays.asList('a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l',
 			'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z');
 
 	// constructor with port
-	public myServer(int port) {
+	public myServer(int port, boolean refuseLocal) {
 
+		this.refuseLocal = refuseLocal;
 		logs = new ArrayList<>();
 		// starts server and waits for a connection
 		localPrint("Server started");
@@ -45,7 +47,7 @@ public class myServer {
 				socket = server.accept();
 				String clientAddress = socket.getInetAddress().getHostAddress();
 
-				if (!clientAddress.equals("127.0.0.1")) {
+				if (refuseLocal ? !clientAddress.equals("127.0.0.1") : true) {
 
 					localPrint("Client@" + clientAddress + " has been accepted.");
 					respondAsServer("Accepted! Connection established!");
@@ -194,13 +196,13 @@ public class myServer {
 
 	public static void main(String args[]) {
 
-		if (args.length < 1) {
-			localPrint("Invalid arguments starting myServer. Usage myServer <port>");
+		if (args.length < 2) {
+			localPrint("Invalid arguments starting myServer. Usage myServer <port> <refuseLocal>");
 			System.exit(0);
 		}
 
 		try {
-			new myServer(Integer.parseInt(args[0]));
+			new myServer(Integer.parseInt(args[0]), (args[1] != null ? Boolean.parseBoolean(args[1]) : false));
 		} catch (NumberFormatException e) {
 			localPrint(" Invalid port number entered. Please try again");
 		}
