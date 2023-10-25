@@ -3,6 +3,8 @@
 import java.net.*;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 import java.io.*;
 
@@ -66,14 +68,17 @@ public class myServer {
 						case "0":
 							cipherOffset = Integer.parseInt(params[2]);
 							respondAsServer("OK");
+							addLog("OPP_CODE: %d | IP: %s | STUDENT_ID: %d".formatted(0, clientAddress, studentId));
 
 							break;
 						case "1":
 							respondAsServer("You are connected to the server as: " + clientAddress);
+							addLog("OPP_CODE: %d | IP: %s | STUDENT_ID: %d".formatted(1, clientAddress, studentId));
 
 							break;
 						case "2":
 							respondAsServer("1 2 3 4 5 6 7 8 9 10");
+							addLog("OPP_CODE: %d | IP: %s | STUDENT_ID: %d".formatted(2, clientAddress, studentId));
 
 							break;
 						case "3":
@@ -83,32 +88,52 @@ public class myServer {
 							}else{
 								storedMessage += " " + decodeMessage(encodedMessage, cipherOffset);
 							}
+
 							respondAsServer("GOT IT");
+
+							addLog("OPP_CODE: %d | IP: %s | STUDENT_ID: %d".formatted(3, clientAddress, studentId));
 							break;
 						case "4":
 							respondAsServer("BYE");
+							addLog("OPP_CODE: %d | IP: %s | STUDENT_ID: %d".formatted(4, clientAddress, studentId));
 							break;
 						default:
 
 							break;
 					}
-
-					// respondAsServer("OK BOMBOOCLATT: " + line);
-
-					if (socket.isClosed()) {
-						localPrint("Client has been disconnected");
-					}
-					// if (line.contains("break")) {
-					// // close connection
-					// localPrint("Connection closed");
-					// socket.close();
-					// in.close();
-					// break;
-					// }
 				}
 			} catch (IOException i) {
 				// Most likely the client disconnected from the server
 				if (i instanceof EOFException) {
+
+					//TODO: Save all storedMessages to logfiles for archive
+
+					File logFile = new File("logs/" + new Date().getTime() + ".txt");
+					if(!logFile.exists()){
+						try {
+							logFile.createNewFile();
+						} catch (IOException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+					}
+					try {
+						FileWriter logWriter = new FileWriter(logFile, (logFile.exists()));
+
+						for (Iterator<String> it = logs.iterator(); it.hasNext();) {
+							String s = it.next();
+							logWriter.write(s);
+							it.remove();
+						
+						} 
+					
+						logWriter.close();
+						localPrint("Successfully saved logs.");
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					
 					System.out.println("A client has disconnected ending the stream.");
 				}
 			}
@@ -119,7 +144,7 @@ public class myServer {
 		String decoded = "";
 		for (int i = 0; i < message.length(); i++) {
 
-			int index = ALPHABET.indexOf(message.charAt(i));
+			int index = ALPHABET.indexOf(message.charAt(i))+1;
 			int newIndex = index + cipherOffset;
 			if (newIndex > 26) {
 				newIndex -= 26;
@@ -131,7 +156,7 @@ public class myServer {
 	}
 
 	private void addLog(String message) {
-
+		logs.add(message);
 	}
 
 	private void respondAsServer(String serverMsg) {

@@ -73,82 +73,88 @@ public class myClient {
 					try {
 						studentId = Integer.parseInt(params[2]);
 
-						try {
-							switch (params[1]) {
-								case "type0":
-
-									if (params.length <= 2) {
-										print("Invalid command paramaters. Usage: cs4118 type0 <studentNumber> [cypherOffset]");
-									} else {
-
-										int cipherOffset = -1;
-
-										if (params.length <= 3) {
-											cipherOffset = 3;
-
-											commandId = 0;
-											out.writeUTF(commandId + "," + studentId + "," + cipherOffset);
-											print(("SERVER> " + servReader.readLine()));
+						if(studentId > 999999 && studentId < 10000000 ){ 
+							try {
+								switch (params[1]) {
+									case "type0":
+	
+										if (params.length <= 2) {
+											print("Invalid command paramaters. Usage: cs4118 type0 <studentNumber> [cypherOffset]");
 										} else {
-											try {
-												cipherOffset = Integer.parseInt(params[3]);
-
-												if (cipherOffset < 0 || cipherOffset > 25) {
-													print("The offset provided is invalid, please chose a number between 1-25");
-												} else {
-													commandId = 0;
-													out.writeUTF(commandId + "," + studentId + "," + cipherOffset);
-													print(("Test: " + servReader.readLine()));
+	
+											int cipherOffset = -1;
+	
+											if (params.length <= 3) {
+												cipherOffset = 3;
+	
+												commandId = 0;
+												out.writeUTF(commandId + "," + studentId + "," + cipherOffset);
+												print(("SERVER> " + servReader.readLine()));
+											} else {
+												try {
+													cipherOffset = Integer.parseInt(params[3]);
+	
+													if (cipherOffset < 0 || cipherOffset > 25) {
+														print("The offset provided is invalid, please chose a number between 1-25");
+													} else {
+														commandId = 0;
+														out.writeUTF(commandId + "," + studentId + "," + cipherOffset);
+														print(("Test: " + servReader.readLine()));
+													}
+												} catch (NumberFormatException e) {
+													print("Invalid cipherOffset entered. Must be an integer");
 												}
-											} catch (NumberFormatException e) {
-												print("Invalid cipherOffset entered. Must be an integer");
 											}
 										}
-									}
-
-									break;
-								case "type1":
-									commandId = 1;
-									out.writeUTF(commandId + "," + studentId);
-									print(("SERVER> " + servReader.readLine()));
-									break;
-								case "type2":
-									commandId = 2;
-									out.writeUTF(commandId + "," + studentId);
-									print(("SERVER> " + servReader.readLine()));
-									break;
-								case "type3":	
-
-									if (params.length > 3) {
-										String encodedMessage = params[3].toLowerCase();
-										commandId = 3;
-										out.writeUTF(commandId + "," + studentId + "," + encodedMessage);
+	
+										break;
+									case "type1":
+										commandId = 1;
+										out.writeUTF(commandId + "," + studentId);
 										print(("SERVER> " + servReader.readLine()));
-									}else{
-										print("Invalid parameters, no encoded message to send.");
-									}
-									break;
-								case "type4":
-									commandId = 4;
-									out.writeUTF(commandId + "," + studentId);
-
-									String response = servReader.readLine();
-									print(("SERVER> " + response));
-
-									if(response.equals("BYE")){
-										input.close();
-										out.close();
-										socket.close();
-										return;
-									}
-									break;
-								default:
-								print("Unknown command entered. Please follow [usage]");
+										break;
+									case "type2":
+										commandId = 2;
+										out.writeUTF(commandId + "," + studentId);
+										print(("SERVER> " + servReader.readLine()));
+										break;
+									case "type3":	
+	
+										if (params.length > 3) {
+											String encodedMessage = params[3].toLowerCase();
+											commandId = 3;
+											out.writeUTF(commandId + "," + studentId + "," + encodedMessage);
+											print(("SERVER> " + servReader.readLine()));
+										}else{
+											print("Invalid parameters, no encoded message to send.");
+										}
+										break;
+									case "type4":
+										commandId = 4;
+										out.writeUTF(commandId + "," + studentId);
+	
+										String response = servReader.readLine();
+										print(("SERVER> " + response));
+	
+										if(response.equals("BYE")){
+											input.close();
+											out.close();
+											socket.close();
+											return;
+										}
+										break;
+									default:
+									print("Unknown command entered. Please follow [usage]");
+								}
+								
+							} catch (IOException e) {
+								e.printStackTrace();
+								break;
 							}
-						} catch (IOException e) {
-							e.printStackTrace();
-							break;
+						}else{
+							print("Invalid student id. Please ensure that it is 7 digits");
 						}
+
 					} catch (NumberFormatException e) {
 						print("Invalid student id entered. Must be an integer");
 					}
