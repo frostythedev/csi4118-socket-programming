@@ -1,5 +1,4 @@
 
-// A Java program for a Server
 import java.net.*;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -9,7 +8,7 @@ import java.util.List;
 import java.io.*;
 
 public class myServer {
-	// initialize socket and input stream
+
 	private Socket socket = null;
 	private ServerSocket server = null;
 
@@ -19,15 +18,13 @@ public class myServer {
 	private PrintWriter printWriter;
 
 	private List<String> logs;
-	private boolean refuseLocal;
 
+	// Alphabet for easy indexing
 	private final List<Character> ALPHABET = Arrays.asList('a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l',
 			'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z');
 
 	// constructor with port
 	public myServer(int port, boolean refuseLocal) {
-
-		this.refuseLocal = refuseLocal;
 		logs = new ArrayList<>();
 		// starts server and waits for a connection
 		localPrint("Server started");
@@ -47,6 +44,7 @@ public class myServer {
 				socket = server.accept();
 				String clientAddress = socket.getInetAddress().getHostAddress();
 
+				// Checking for local conections and allowing or disallowing the connection if that is the case
 				if (refuseLocal ? !clientAddress.equals("127.0.0.1") : true) {
 
 					localPrint("Client@" + clientAddress + " has been accepted.");
@@ -55,20 +53,24 @@ public class myServer {
 					// takes input from the client socket
 					in = new DataInputStream(new BufferedInputStream(socket.getInputStream()));
 
+					// We parse the commands sent from the client in a condensed format so that we can easily and quickly decipher what is to be done and how to interpret the data
 					String line = "";
 					String[] params;
 					int cipherOffset = 3;
 					int studentId;
 					String storedMessage = "";
 
+					// Ensures that the server is always listening for messages from the client
 					while (true) {
 						line = in.readUTF();
 
 						localPrint("Received: " + line);
 						params = line.split(",");
 
+						// Getting the studentID of the request
 						studentId = Integer.parseInt(params[1]);
 
+						// Depending on the message sent by the client, the server decides what process to execute, makes a log if it and assigns the appropriate parameters to the command. Also makes any necessary changes to the localServer's code 
 						switch (params[0]) {
 							case "0":
 								cipherOffset = Integer.parseInt(params[2]);
@@ -109,6 +111,7 @@ public class myServer {
 					}
 				}else{
 					
+
 					respondAsServer("Refused! Cannot connect to server for the same computer.");
 					socket.close();
 				}
@@ -117,23 +120,24 @@ public class myServer {
 				// Most likely the client disconnected from the server
 				if (i instanceof EOFException) {
 
-					// TODO: Save all storedMessages to logfiles for archive
-
-					File logFile = new File("logs/" + new Date().getTime() + ".txt");
+					// DONE: Save all storedMessages to logfiles in the server's folder using the currnet timestamp of the disconnected client
+					File logFile = new File(new Date().getTime() + ".txt");
+					
 					if (!logFile.exists()) {
 						try {
 							logFile.createNewFile();
 						} catch (IOException e) {
-							// TODO Auto-generated catch block
 							e.printStackTrace();
 						}
 					}
+
+					// Iterates through the logFiles in the list and writes it to our logFile, once done it is purged from the array
 					try {
 						FileWriter logWriter = new FileWriter(logFile, (logFile.exists()));
 
 						for (Iterator<String> it = logs.iterator(); it.hasNext();) {
 							String s = it.next();
-							logWriter.write(s);
+							logWriter.write(s + "\n");
 							it.remove();
 
 						}
@@ -151,14 +155,18 @@ public class myServer {
 		}
 	}
 
+	// Method for decoding the messages for storage in the logFiles, by using thecurrent cipherOffset to get the actual message that is being sent/stored
 	private String decodeMessage(String message, int cipherOffset) {
 		String decoded = "";
 		for (int i = 0; i < message.length(); i++) {
 
-			int index = ALPHABET.indexOf(message.charAt(i)) + 1;
+			int index = ALPHABET.indexOf(message.charAt(i));
 			int newIndex = index + cipherOffset;
-			if (newIndex > 26) {
-				newIndex -= 26;
+			if (newIndex > 25) {
+				newIndex -= 25;
+				//localPrint("Alpha is greater than 26, spill over, input: %s | output: %s".formatted(message.charAt(i), "N/A"));
+			}else{
+				//localPrint("Alpha is not greater than 26 input: %s".formatted(message.charAt(i)));
 			}
 			decoded = decoded + ALPHABET.get(newIndex);
 		}
@@ -170,6 +178,7 @@ public class myServer {
 		logs.add(message);
 	}
 
+	// Simple utility function to respondTo the client as the Server using the preconfigured streams
 	private void respondAsServer(String serverMsg) {
 		if (socket != null) {
 			try {
@@ -194,6 +203,7 @@ public class myServer {
 		System.out.println(message);
 	}
 
+	// Ensuring proper arguments are provided when the java file is run in the  compiler ensuring that it has everything needed to properly function
 	public static void main(String args[]) {
 
 		if (args.length < 2) {

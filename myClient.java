@@ -1,5 +1,4 @@
 
-// A Java program for a Client
 import java.io.*;
 import java.net.*;
 import java.util.Scanner;
@@ -9,9 +8,11 @@ public class myClient {
 	private Socket socket = null;
 	private Scanner input = null;
 
+	// For receiving messaages back from the server
 	private DataInputStream serverInputStream;
 	private BufferedReader servReader;
 
+	// Stream to send data to the server
 	private DataOutputStream out = null;
 
 	// constructor to put ip address and port
@@ -24,6 +25,7 @@ public class myClient {
 			serverInputStream = new DataInputStream(socket.getInputStream());
 			servReader = new BufferedReader(new InputStreamReader(serverInputStream));
 
+			// Checking if the local machine is being detected and if it is rejected, provide the user with the reason why,
 			String serverConnectResponse = servReader.readLine();
 			if(serverConnectResponse.startsWith("Refused")){
 				print("Connection has been refused for: " + serverConnectResponse);
@@ -50,35 +52,36 @@ public class myClient {
 		String line = "";
 		String[] params;
 
+		// Ensures that the client program is always ready to accept new commands
 		while (true) {
 
+			// Pleaceholders for the commandId and studentId
 			int studentId = -1;
 			int commandId;
 
 			line = (input.hasNext() ? input.nextLine() : "");
 
-			
 
+			// Command matching based on what the user enters
 			if (line.startsWith("csi4118")) {
 
 				params = line.split(" ");
 
+				// Parameter checking and usage to ensure the user is aware of how to generally use the correct sytax for the client program
 				if (params.length < 3) {
 					print("Invalid command paramaters. Usage: cs4118 <commandType> <studentNumber> [parameters]");
 
 				} else {
 
-					// if (params[2] == null || params[2] == "") {
-					// print("Invalid syntax, please enter a studentId followed by integer between
-					// 1-25");
-					// } else {
-
-					// }
 					try {
 						studentId = Integer.parseInt(params[2]);
 
+
+						// Checking that the studentId is indeed 7 figures long as specified
 						if(studentId > 999999 && studentId < 10000000 ){ 
 							try {
+
+								// Parsing the commands, ensuring that the paramater needed for each command is set where required and doing any sort of formating and validation of data to ensure that the server only receives clean data from our client
 								switch (params[1]) {
 									case "type0":
 	
@@ -176,6 +179,7 @@ public class myClient {
 		System.out.println(message);
 	}
 
+	// Ensuring proper arguments are provided when the java file is run in the  compiler ensuring that it has everything needed to properly function
 	public static void main(String args[]) {
 
 		if (args.length < 1) {
